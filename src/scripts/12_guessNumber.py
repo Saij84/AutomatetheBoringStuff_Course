@@ -1,6 +1,7 @@
 import random
 #toDo
 '''
+-ask players name
 -player need to guess a random number between 1 - 20
 
 -player only have 6 guesses
@@ -14,25 +15,25 @@ import random
 '''
 
 randInt = random.randint(1, 20)
-count = 0
 
-def myGuess(guess):
-    if int(guess) < randInt:
-        print("Your guess is too low")
-    elif int(guess) > randInt:
-        print("Your guess is too high")
-    else:
-        print("Correct! The number is {}".format(randInt))
-        exit()
+print("what is your name?")
+playerName = input()
 
-while count < 6:
-    guess = input("Please guess a number from 1 - 20")
+print("Hi {}".format(playerName))
+
+for count in range(1, 7):
+    print("Please guess a number from 1 - 20")
+    guess = input()
 
     try:
         int(guess)
     except ValueError:
         print("Please enter a number")
 
-    myGuess(guess)
-
-    count += 1
+    if int(guess) < randInt:
+        print("Your guess is too low")
+    elif int(guess) > randInt:
+        print("Your guess is too high")
+    else:
+        print("Correct {}! The number is {}".format(playerName, randInt))
+        break
