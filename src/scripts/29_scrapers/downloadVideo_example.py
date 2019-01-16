@@ -1,19 +1,37 @@
-# imported the requests library
 import requests
+from bs4 import BeautifulSoup as bs
+import urllib3
 
-image_url = "https://courses.csail.mit.edu/6.006/fall11/lectures/"
+vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
+_URL = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 
-# URL of the image to be downloaded is defined as image_url
-r = requests.get(image_url)  # create HTTP response object
+# functional
 
-# send a HTTP request to the server and save
-# the HTTP response in a response object called r
-with open("lecture1.pdf", 'wb') as f:
-    '''
-    Saving recieved content as a png file in binary format
-    '''
 
-    # write the contents of the response (r.content)
-    # to a new file in binary mode.
-    f.write(r.content)
-    f.close()
+def getNameLinks(url):
+    r = requests.get(url)
+    soup = bs(r.text, 'html.parser')
+    urls = []
+    names = []
+
+    for i, link in enumerate(soup.findAll('a')):
+        dlLink = url + link.get('href')
+        if dlLink.endswith('.pdf') or dlLink.endswith('.zip') or dlLink.endswith('.webm'):
+            urls.append(dlLink)
+            names.append(soup.select('a')[i].attrs['href'])
+    print(urls)
+    print(names)
+    return urls, names
+
+getNameLinks(vid_url)
+
+
+# names_urls = zip(names, urls)
+#
+# for name, url in names_urls:
+#     print(url)
+#     rq = urllib3.Request(url)
+#     res = urllib3.urlopen(rq)
+#     pdf = open("pdfs/" + name, 'wb')
+#     pdf.write(res.read())
+#     pdf.close()
