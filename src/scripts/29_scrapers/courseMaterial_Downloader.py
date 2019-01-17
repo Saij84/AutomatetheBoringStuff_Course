@@ -1,4 +1,5 @@
 import requests
+import certifi
 from bs4 import BeautifulSoup as bs
 import urllib3
 
@@ -8,43 +9,54 @@ fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 # functional
 
 class DownloadFiles:
-    def __init__(self, url, searchFormatList):
+    def __init__(self, url, searchExtensionList):
+        """
+        :param url: url address, type -> str
+        :param searchExtensionList: ie: ('.mp4', '.jpg'), type -> tupels
+        """
         self.url = url
         self.r = requests.get(self.url)
         self.soup = bs(self.r.text, 'html.parser')
-        self.searchFormatList = searchFormatList
+        self.searchExtensionList = searchExtensionList
+        self.http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
+                                        ca_certs=certifi.where())
 
     def getLinks(self):
         urls = []
 
-        print(self.searchFormatList)
-        for i, link in enumerate(self.soup.findAll('a')):
+        for link in self.soup.findAll('a'):
             dlLink = self.url + link.get('href')
-            if dlLink.endswith(('.pdf', '.zip')):
+            if dlLink.endswith(self.searchExtensionList):
                 urls.append(dlLink)
         return urls
 
     def getNames(self):
         names = []
 
-        for i, link in enumerate(self.soup.findAll('a')):
+        for index, link in enumerate(self.soup.findAll('a')):
             dlLink = self.url + link.get('href')
-            if dlLink.endswith('.pdf') or dlLink.endswith('.zip') or dlLink.endswith('.webm'):
-                names.append(self.soup.select('a')[i].attrs['href'])
+            if dlLink.endswith(self.searchExtensionList):
+                names.append(self.soup.select('a')[index].attrs['href'])
         return names
 
-dlf = DownloadFiles(vid_url, ('.pdf', '.zip'))
+    def downloadFile(self):
 
-names = dlf.getLinks()
+        names_urls = zip(self.getNames(), self.getLinks())
 
-print(names)
+        for name, url in names_urls:
+            print(name, url)
+            rq = self.http.request('GET', url)
 
-# names_urls = zip(names, urls)
-#
-# for name, url in names_urls:
-#     print(url)
-#     rq = urllib3.Request(url)
-#     res = urllib3.urlopen(rq)
-#     pdf = open("pdfs/" + name, 'wb')
-#     pdf.write(res.read())
-#     pdf.close()
+            res = self.http.urlopen('POST', url)
+            print(res.read())
+
+            # file = open("pdfs/" + name, 'wb')
+            # file.write(res.read())
+            # file.close()
+
+
+
+dlf = DownloadFiles(fileUrl, ('pdf'))
+
+dlf.downloadFile()
+
