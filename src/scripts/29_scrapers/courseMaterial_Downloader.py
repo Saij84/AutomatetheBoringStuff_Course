@@ -1,13 +1,37 @@
-import bs4
 import requests
+from bs4 import BeautifulSoup as bs
+import urllib3
 
-url = "https://courses.csail.mit.edu/6.006/fall11//lectures/"
-req = requests.get(url)
-req.raise_for_status()
+vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
+_URL = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 
-soup = bs4.BeautifulSoup(req.text, features="html.parser")
+# functional
 
-items = soup.find("href")
-print(items)
-for item in items:
-    print(item)
+
+def getNameLinks(url):
+    r = requests.get(url)
+    soup = bs(r.text, 'html.parser')
+    urls = []
+    names = []
+
+    for i, link in enumerate(soup.findAll('a')):
+        dlLink = url + link.get('href')
+        if dlLink.endswith('.pdf') or dlLink.endswith('.zip') or dlLink.endswith('.webm'):
+            urls.append(dlLink)
+            names.append(soup.select('a')[i].attrs['href'])
+    print(urls)
+    print(names)
+    return urls, names
+
+getNameLinks(vid_url)
+
+
+# names_urls = zip(names, urls)
+#
+# for name, url in names_urls:
+#     print(url)
+#     rq = urllib3.Request(url)
+#     res = urllib3.urlopen(rq)
+#     pdf = open("pdfs/" + name, 'wb')
+#     pdf.write(res.read())
+#     pdf.close()
