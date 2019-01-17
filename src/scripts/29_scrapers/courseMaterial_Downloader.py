@@ -3,28 +3,41 @@ from bs4 import BeautifulSoup as bs
 import urllib3
 
 vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
-_URL = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
+fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 
 # functional
 
+class DownloadFiles:
+    def __init__(self, url, searchFormatList):
+        self.url = url
+        self.r = requests.get(self.url)
+        self.soup = bs(self.r.text, 'html.parser')
+        self.searchFormatList = searchFormatList
 
-def getNameLinks(url):
-    r = requests.get(url)
-    soup = bs(r.text, 'html.parser')
-    urls = []
-    names = []
+    def getLinks(self):
+        urls = []
 
-    for i, link in enumerate(soup.findAll('a')):
-        dlLink = url + link.get('href')
-        if dlLink.endswith('.pdf') or dlLink.endswith('.zip') or dlLink.endswith('.webm'):
-            urls.append(dlLink)
-            names.append(soup.select('a')[i].attrs['href'])
-    print(urls)
-    print(names)
-    return urls, names
+        print(self.searchFormatList)
+        for i, link in enumerate(self.soup.findAll('a')):
+            dlLink = self.url + link.get('href')
+            if dlLink.endswith(('.pdf', '.zip')):
+                urls.append(dlLink)
+        return urls
 
-getNameLinks(vid_url)
+    def getNames(self):
+        names = []
 
+        for i, link in enumerate(self.soup.findAll('a')):
+            dlLink = self.url + link.get('href')
+            if dlLink.endswith('.pdf') or dlLink.endswith('.zip') or dlLink.endswith('.webm'):
+                names.append(self.soup.select('a')[i].attrs['href'])
+        return names
+
+dlf = DownloadFiles(vid_url, ('.pdf', '.zip'))
+
+names = dlf.getLinks()
+
+print(names)
 
 # names_urls = zip(names, urls)
 #
