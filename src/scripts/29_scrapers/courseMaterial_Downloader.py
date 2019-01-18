@@ -44,6 +44,11 @@ class DownloadFiles:
 
     def downloadFile(self):
 
+        if os.path.exists(self.path) == False:
+            os.makedirs(self.path)
+            print('Folder does not exist, creating folder:\n {}'.format(os.path.abspath(self.path)))
+
+
         names_urls = zip(self.getNames(), self.getLinks())
 
         for name, url in names_urls:
@@ -51,16 +56,14 @@ class DownloadFiles:
             rq = self.http.request('GET', url, preload_content=False)
             with open(self.path + name, 'wb') as out:
                 while True:
-                    data = rq.read(1024)
+                    data = rq.read()
                     if not data:
                         break
                     out.write(data)
+            print('Your files has been downloaded!')
             rq.release_conn()
 
 
-path = r"C:\tools\AutomatetheBoringStuff_Course\src\scripts\29_scrapers\pdfs"
-dlf = DownloadFiles(fileUrl, ('pdf'), 'pdfs/')
+dlf = DownloadFiles(vid_url, ('webm'), 'algo/video')
 
 dlf.downloadFile()
-
-
