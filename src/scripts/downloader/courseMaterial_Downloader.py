@@ -1,3 +1,7 @@
+"""
+a somple downloader intended to scrape a given webpage, find links and download file based on file format
+"""
+
 import os
 import urllib3
 import certifi
@@ -16,8 +20,7 @@ class DownloadFiles:
         self.r = requests.get(self.url)
         self.soup = bs(self.r.text, 'html.parser')
         self.searchExtensionList = searchExtensionList
-        self.http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED',
-                                        ca_certs=certifi.where())
+        self.http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
     def getLinks(self):
         urls = []
