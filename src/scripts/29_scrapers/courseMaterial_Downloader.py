@@ -2,6 +2,7 @@ import requests
 import certifi
 from bs4 import BeautifulSoup as bs
 import urllib3
+import os
 
 vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
 fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
@@ -9,11 +10,13 @@ fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 # functional
 
 class DownloadFiles:
-    def __init__(self, url, searchExtensionList):
+    def __init__(self, url, searchExtensionList, path):
         """
         :param url: url address, type -> str
-        :param searchExtensionList: ie: ('.mp4', '.jpg'), type -> tupels
+        :param searchExtensionList: ie: ('.mp4', '.jpg'), type -> tuples
+        :param save path, type -> str
         """
+        self.path = path
         self.url = url
         self.r = requests.get(self.url)
         self.soup = bs(self.r.text, 'html.parser')
@@ -45,18 +48,19 @@ class DownloadFiles:
 
         for name, url in names_urls:
             print(name, url)
-            rq = self.http.request('GET', url)
+            rq = self.http.request('GET', url, preload_content=False)
+            with open(self.path + name, 'wb') as out:
+                while True:
+                    data = rq.read(1024)
+                    if not data:
+                        break
+                    out.write(data)
+            rq.release_conn()
 
-            res = self.http.urlopen('POST', url)
-            print(res.read())
 
-            # file = open("pdfs/" + name, 'wb')
-            # file.write(res.read())
-            # file.close()
-
-
-
-dlf = DownloadFiles(fileUrl, ('pdf'))
+path = r"C:\tools\AutomatetheBoringStuff_Course\src\scripts\29_scrapers\pdfs"
+dlf = DownloadFiles(fileUrl, ('pdf'), 'pdfs/')
 
 dlf.downloadFile()
+
 
