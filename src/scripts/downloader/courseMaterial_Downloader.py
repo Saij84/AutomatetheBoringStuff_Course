@@ -4,16 +4,11 @@ import certifi
 import requests
 from bs4 import BeautifulSoup as bs
 
-vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
-fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
-
-# functional
-
 class DownloadFiles:
     def __init__(self, url, searchExtensionList, path):
         """
         :param url: url address, type -> str
-        :param searchExtensionList: ie: ('.mp4', '.jpg'), type -> tuples
+        :param searchExtensionList: ie: ('.mp4', '.jpg'), type -> tuple
         :param save path, type -> str
         """
         self.path = path
@@ -33,6 +28,12 @@ class DownloadFiles:
                 urls.append(dlLink)
         return urls
 
+    def checkDir(self):
+        assert(os.path.exists(self.path) == False,
+               'Folder does not exist @ {}'.format(os.path.abspath(self.path)))
+        return False
+
+
     def getNames(self):
         names = []
 
@@ -43,26 +44,24 @@ class DownloadFiles:
         return names
 
     def downloadFile(self):
-
-        if os.path.exists(self.path) == False:
+        if self.checkDir() == False:
             os.makedirs(self.path)
-            print('Folder does not exist, creating folder:\n {}'.format(os.path.abspath(self.path)))
 
-
+        os.makedirs(self.path)
         names_urls = zip(self.getNames(), self.getLinks())
-
-        for name, url in names_urls:
-            print(name, url)
+        for fileName, url in names_urls:
             rq = self.http.request('GET', url, preload_content=False)
-            with open(self.path + name, 'wb') as out:
+            with open(self.path + fileName, 'wb') as out:
                 while True:
                     data = rq.read()
                     if not data:
                         break
                     out.write(data)
-            print('Your files has been downloaded!')
+            print('Your file: {} has been downloaded from {}'.format(fileName, url))
             rq.release_conn()
 
+vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
+fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 
 dlf = DownloadFiles(vid_url, ('webm'), 'algo/video')
 
