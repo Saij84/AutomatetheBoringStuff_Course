@@ -1,8 +1,8 @@
-import requests
-import certifi
-from bs4 import BeautifulSoup as bs
-import urllib3
 import os
+import urllib3
+import certifi
+import requests
+from bs4 import BeautifulSoup as bs
 
 vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
 fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
