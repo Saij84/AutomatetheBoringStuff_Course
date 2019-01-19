@@ -22,6 +22,12 @@ class DownloadFiles:
         self.searchExtensionList = searchExtensionList
         self.http = urllib3.PoolManager(cert_reqs='CERT_REQUIRED', ca_certs=certifi.where())
 
+    def checkDir(self):
+        if os.path.exists(self.path):
+            return True
+        else:
+            return False
+
     def getLinks(self):
         urls = []
 
@@ -30,11 +36,6 @@ class DownloadFiles:
             if dlLink.endswith(self.searchExtensionList):
                 urls.append(dlLink)
         return urls
-
-    def checkDir(self):
-        assert(os.path.exists(self.path) == False,
-               'Folder does not exist @ {}'.format(os.path.abspath(self.path)))
-        return False
 
 
     def getNames(self):
@@ -50,13 +51,13 @@ class DownloadFiles:
         if self.checkDir() == False:
             os.makedirs(self.path)
 
-        os.makedirs(self.path)
         names_urls = zip(self.getNames(), self.getLinks())
         for fileName, url in names_urls:
             rq = self.http.request('GET', url, preload_content=False)
             with open(self.path + fileName, 'wb') as out:
+                print('Downloading: {}'.format(fileName))
                 while True:
-                    data = rq.read()
+                    data = rq.read(1024)
                     if not data:
                         break
                     out.write(data)
@@ -66,6 +67,6 @@ class DownloadFiles:
 vid_url = 'http://people.csail.mit.edu/costan/mit6006/lectures/'
 fileUrl = 'https://courses.csail.mit.edu/6.006/fall11/lectures/'
 
-dlf = DownloadFiles(vid_url, ('webm'), 'algo/video')
+dlf = DownloadFiles(vid_url, ('webm'), 'algo/video/')
 
 dlf.downloadFile()
